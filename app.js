@@ -84,7 +84,7 @@ function renderWords() {
   $("#word-list").innerHTML = words.map(word => {
     const progress = progressFor(word.id);
     const learned = progress.repetitions >= 3;
-    return `<article class="word-row"><div><div class="word-japanese">${escapeHtml(word.japanese)}</div><div class="word-meta">${escapeHtml(word.romaji)} · ${escapeHtml(word.russian)}</div></div><span class="word-status ${learned ? "learned" : ""}">${learned ? "выучено" : progress.correct ? "учится" : "новое"}</span></article>`;
+    return `<article class="word-row"><div><div class="word-japanese">${escapeHtml(word.japanese)}</div><div class="word-meta">${escapeHtml(word.romaji)} · ${escapeHtml(word.russian)}</div></div><div class="word-actions"><span class="word-status ${learned ? "learned" : ""}">${learned ? "выучено" : progress.correct ? "учится" : "новое"}</span>${word.custom ? `<button class="delete-word" type="button" data-delete-word="${word.id}" aria-label="Удалить ${escapeHtml(word.japanese)}">×</button>` : ""}</div></article>`;
   }).join("") || `<p class="muted">Ничего не найдено.</p>`;
 }
 
@@ -123,8 +123,8 @@ function renderQuestion() {
     $("#quiz-prompt").textContent = word.russian;
     renderOptions(word, "japanese");
   } else {
-    $("#quiz-direction").textContent = "Напишите чтение ромадзи";
-    $("#quiz-prompt").textContent = word.japanese;
+    $("#quiz-direction").textContent = "Напишите слово хираганой";
+    $("#quiz-prompt").textContent = word.russian;
     $("#typing-answer").value = "";
     setTimeout(() => $("#typing-answer").focus(), 50);
   }
@@ -156,7 +156,7 @@ function answerQuestion(isCorrect, selectedId = null) {
 
   $("#quiz-reading").textContent = `${word.romaji} · ${word.russian}`;
   const feedback = $("#feedback");
-  feedback.textContent = isCorrect ? "Правильно!" : `Правильный ответ: ${word.romaji}`;
+  feedback.textContent = isCorrect ? "Правильно!" : `Правильный ответ: ${currentSession.mode === "typing" ? word.kana : word.romaji}`;
   feedback.className = `feedback ${isCorrect ? "correct" : "wrong"}`;
   $("#next-question").textContent = currentSession.index === currentSession.questions.length - 1 ? "Результат" : "Дальше";
   $("#next-question").classList.remove("hidden");
@@ -245,6 +245,16 @@ function addWord(form) {
   showToast("Слово добавлено");
 }
 
+function deleteCustomWord(id) {
+  const word = data.customWords.find(item => item.id === id);
+  if (!word || !confirm(`Удалить слово «${word.japanese}»?`)) return;
+  data.customWords = data.customWords.filter(item => item.id !== id);
+  delete data.progress[id];
+  saveData();
+  renderWords();
+  showToast("Слово удалено");
+}
+
 function exportData() {
   const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), ...data }, null, 2)], { type: "application/json" });
   const link = document.createElement("a");
@@ -270,8 +280,8 @@ async function importData(file) {
   }
 }
 
-function normalizeRomaji(value) {
-  return value.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ou|oo/g, "o").replace(/ii/g, "i").replace(/uu/g, "u").replace(/[^a-z]/g, "");
+function normalizeKana(value) {
+  return value.trim().replace(/[\s。、・]/g, "");
 }
 
 function escapeHtml(value) {
@@ -296,13 +306,17 @@ $("#quiz-options").addEventListener("click", event => {
 $("#typing-form").addEventListener("submit", event => {
   event.preventDefault();
   const word = currentSession.questions[currentSession.index];
-  answerQuestion(normalizeRomaji($("#typing-answer").value) === normalizeRomaji(word.romaji));
+  answerQuestion(normalizeKana($("#typing-answer").value) === normalizeKana(word.kana));
 });
 $("#next-question").addEventListener("click", nextQuestion);
 $("#close-quiz").addEventListener("click", closeQuiz);
 $("#finish-session").addEventListener("click", () => { closeQuiz(); showView("home"); });
 $("#repeat-mistakes").addEventListener("click", () => startSession(currentSession.mode, currentSession.mistakes));
 $("#word-search").addEventListener("input", renderWords);
+$("#word-list").addEventListener("click", event => {
+  const button = event.target.closest("[data-delete-word]");
+  if (button) deleteCustomWord(button.dataset.deleteWord);
+});
 $("#show-add-word").addEventListener("click", () => $("#add-word-dialog").showModal());
 $("#close-dialog").addEventListener("click", () => $("#add-word-dialog").close());
 $("#add-word-form").addEventListener("submit", event => { event.preventDefault(); addWord(event.currentTarget); });

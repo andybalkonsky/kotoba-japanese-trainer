@@ -59,7 +59,7 @@
         <div class="mode-grid">
           <button class="mode-card" data-start-mode="jp-ru" type="button"><span>日 → Я</span><strong>Японский → русский</strong><small>Выберите перевод</small></button>
           <button class="mode-card" data-start-mode="ru-jp" type="button"><span>Я → 日</span><strong>Русский → японский</strong><small>Выберите слово</small></button>
-          <button class="mode-card" data-start-mode="typing" type="button"><span>⌨︎</span><strong>Ввод ответа</strong><small>Напишите чтение ромадзи</small></button>
+          <button class="mode-card" data-start-mode="typing" type="button"><span>⌨︎</span><strong>Ввод ответа</strong><small>Напишите слово хираганой</small></button>
         </div>
         <label class="field">Размер занятия
           <select id="session-size"><option value="10">10 слов</option><option value="20" selected>20 слов</option><option value="30">30 слов</option><option value="999">Все доступные</option></select>
@@ -74,7 +74,7 @@
           <p id="quiz-reading" class="reading"></p>
           <div id="quiz-options" class="options"></div>
           <form id="typing-form" class="hidden">
-            <label class="field">Ответ ромадзи<input id="typing-answer" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Например: taberu"></label>
+            <label class="field">Ответ хираганой<input id="typing-answer" autocomplete="off" autocapitalize="none" spellcheck="false" lang="ja" placeholder="Например: たべる"></label>
             <button class="button primary wide" type="submit">Проверить</button>
           </form>
           <div id="feedback" class="feedback hidden" aria-live="polite"></div>
