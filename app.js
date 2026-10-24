@@ -1,12 +1,14 @@
 const BASE_WORDS = [
   ["てんき","tenki","погода"],["べんきょう","benkyō","учёба"],["がっこう","gakkō","школа"],["しごと","shigoto","работа"],["ほん","hon","книга"],["えいが","eiga","фильм"],["あたたかい","atatakai","тёплый"],["さむい","samui","холодный"],["いそがしい","isogashii","занятой"],["おもしろい","omoshiroi","интересный"],["つまらない","tsumaranai","скучный"],["じゅぎょう","jugyō","урок"],["かたい","katai","твёрдый"],["あぶない","abunai","опасный"],["かんたん","kantan","простой"],["まじめ","majime","серьёзный"],["あまい","amai","сладкий"],["ひろい","hiroi","широкий"],["せまい","semai","узкий"],["おおきい","ōkii","большой"],["ちいさい","chiisai","маленький"],["きたない","kitanai","грязный"],["としょかん","toshokan","библиотека"],["えき","eki","станция"],["みせ","mise","магазин"],["ぎんこう","ginkō","банк"],["こうえん","kōen","парк"],["おねえさん","onēsan","старшая сестра"],
   ["おにいさん","onīsan","старший брат"],["いもうと","imōto","младшая сестра"],["おとうと","otōto","младший брат"],["きのう","kinō","вчера"],["しゅくだい","shukudai","домашнее задание"],["はやい","hayai","быстрый / ранний"],["はな","hana","цветок"],["き","ki","дерево"],["みどり","midori","зелёный"],["くろい","kuroi","чёрный"],["むらさき","murasaki","фиолетовый"],["はいいろ","haiiro","серый"],["ちゃいろ","chairo","коричневый"],["オレンジ","orenji","оранжевый"],["いろ","iro","цвет"],["かわいい","kawaii","милый"],["あおい","aoi","синий / голубой"],["あかい","akai","красный"],["ピンク","pinku","розовый"],["きいろい","kiiroi","жёлтый"],["うさぎ","usagi","кролик"],["しろい","shiroi","белый"],["むずかしい","muzukashii","сложный"],["うた","uta","песня"],["くも","kumo","облако"],["でんしゃ","densha","поезд"],["ともだち","tomodachi","друг"],["ていねい","teinei","вежливый / тщательный"],["ペン","pen","ручка"],["ノート","nōto","тетрадь"],
-  ["えんぴつ","enpitsu","карандаш"],["きょうかしょ","kyōkasho","учебник"],["おもちゃ","omocha","игрушка"],["くま","kuma","медведь"],["くじら","kujira","кит"],["はこ","hako","коробка"],["つかれました","tsukaremashita","устал(а)"],["きょう","kyō","сегодня"],["あした","ashita","завтра"],["はれ","hare","ясная погода"],["あめ","ame","дождь"],["かぜ","kaze","ветер"],["やすみ","yasumi","отдых / выходной"],["はは","haha","моя мама"],["ちち","chichi","мой папа"],["しんせつ","shinsetsu","добрый / любезный"],["きれい","kirei","красивый / чистый"],["みち","michi","дорога"],["もも","momo","персик"],["うつくしい","utsukushii","прекрасный"]
-].map((word, index) => ({ id: `base-${index + 1}`, japanese: word[0], kana: word[0], romaji: word[1], russian: word[2], custom: false }));
+  ["えんぴつ","enpitsu","карандаш"],["きょうかしょ","kyōkasho","учебник"],["おもちゃ","omocha","игрушка"],["くま","kuma","медведь"],["くじら","kujira","кит"],["はこ","hako","коробка"],["つかれました","tsukaremashita","устал(а)"],["きょう","kyō","сегодня"],["あした","ashita","завтра"],["はれ","hare","ясная погода"],["あめ","ame","дождь"],["かぜ","kaze","ветер"],["やすみ","yasumi","отдых / выходной"],["はは","haha","моя мама"],["ちち","chichi","мой папа"],["しんせつ","shinsetsu","добрый / любезный"],["きれい","kirei","красивый / чистый"],["みち","michi","дорога"],["もも","momo","персик"],["うつくしい","utsukushii","прекрасный"],
+  ["ふくざつ","fukuzatsu","сложный"],["きらい","kirai","нелюбимый"],["べんり","benri","удобный"],["ハンサム","hansamu","красивый (о мужчине)"],["ひま","hima","свободный (о времени)"],["げんき","genki","здоровый / бодрый"],["ゆうめい","yūmei","известный"],["まち","machi","город"],
+  ["すき","suki","любимый"],["だいじ","daiji","важный"],["へた","heta","неумелый"],["すてき","suteki","чудесный"],["じょうず","jōzu","умелый"],["へん","hen","странный"],["にぎやか","nigiyaka","многолюдный"],["しずか","shizuka","тихий"],["たいせつ","taisetsu","важный / дорогой сердцу"],["いす","isu","стул"],["おとうさん","otōsan","отец"]
+].map((word, index) => ({ id: `base-${index + 1}`, japanese: word[0], kana: toHiragana(word[0]), romaji: word[1], russian: word[2], custom: false }));
 
 const STORAGE_KEY = "kotoba-data-v1";
 const DAY = 86400000;
-const defaultData = () => ({ version: 1, customWords: [], progress: {}, stats: { total: 0, correct: 0, mistakes: 0, byDay: {}, bestStreak: 0 } });
+const defaultData = () => ({ version: 1, customWords: [], favorites: [], theme: "classic", progress: {}, stats: { total: 0, correct: 0, mistakes: 0, byDay: {}, bestStreak: 0 } });
 let data = loadData();
 let currentSession = null;
 let deferredInstall = null;
@@ -21,7 +23,7 @@ const shuffle = items => [...items].sort(() => Math.random() - .5);
 function loadData() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return saved && saved.version === 1 ? { ...defaultData(), ...saved, stats: { ...defaultData().stats, ...saved.stats } } : defaultData();
+    return saved && saved.version === 1 ? { ...defaultData(), ...saved, favorites: Array.isArray(saved.favorites) ? saved.favorites : [], stats: { ...defaultData().stats, ...saved.stats } } : defaultData();
   } catch {
     return defaultData();
   }
@@ -79,19 +81,24 @@ function renderHome() {
 
 function renderWords() {
   const query = $("#word-search").value.trim().toLowerCase();
-  const words = allWords().filter(word => [word.japanese, word.kana, word.romaji, word.russian].some(value => value.toLowerCase().includes(query)));
+  const onlyFavorites = $("#word-filter").value === "favorites";
+  const words = allWords().filter(word => (!onlyFavorites || data.favorites.includes(word.id)) && [word.japanese, word.kana, word.romaji, word.russian].some(value => value.toLowerCase().includes(query)));
   $("#word-count").textContent = allWords().length;
+  $("#favorites-count").textContent = data.favorites.length;
   $("#word-list").innerHTML = words.map(word => {
     const progress = progressFor(word.id);
     const learned = progress.repetitions >= 3;
-    return `<article class="word-row"><div><div class="word-japanese">${escapeHtml(word.japanese)}</div><div class="word-meta">${escapeHtml(word.romaji)} · ${escapeHtml(word.russian)}</div></div><div class="word-actions"><span class="word-status ${learned ? "learned" : ""}">${learned ? "выучено" : progress.correct ? "учится" : "новое"}</span>${word.custom ? `<button class="delete-word" type="button" data-delete-word="${word.id}" aria-label="Удалить ${escapeHtml(word.japanese)}">×</button>` : ""}</div></article>`;
+    const favorite = data.favorites.includes(word.id);
+    return `<article class="word-row"><div><div class="word-japanese">${escapeHtml(word.japanese)}</div><div class="word-meta">${escapeHtml(word.romaji)} · ${escapeHtml(word.russian)}</div></div><div class="word-actions"><button class="favorite-word ${favorite ? "active" : ""}" type="button" data-favorite-word="${word.id}" aria-label="${favorite ? "Убрать из избранного" : "Добавить в избранное"}: ${escapeHtml(word.japanese)}" aria-pressed="${favorite}">${favorite ? "★" : "☆"}</button><span class="word-status ${learned ? "learned" : ""}">${learned ? "выучено" : progress.correct ? "учится" : "новое"}</span>${word.custom ? `<button class="delete-word" type="button" data-delete-word="${word.id}" aria-label="Удалить ${escapeHtml(word.japanese)}">×</button>` : ""}</div></article>`;
   }).join("") || `<p class="muted">Ничего не найдено.</p>`;
 }
 
 function startSession(mode, sourceWords = null) {
   const size = Number($("#session-size").value);
-  let pool = sourceWords || dueWords();
-  if (!pool.length) pool = allWords();
+  const favoritesOnly = $("#session-source").value === "favorites";
+  let pool = sourceWords || (favoritesOnly ? allWords().filter(word => data.favorites.includes(word.id)) : dueWords());
+  if (!pool.length && !sourceWords && !favoritesOnly) pool = allWords();
+  if (!pool.length) { showToast("Сначала отметьте слова звёздочками"); return; }
   const questions = shuffle(pool).slice(0, size);
   currentSession = { mode, questions, index: 0, correct: 0, mistakes: [], answered: false };
   $("#mode-picker").classList.add("hidden");
@@ -131,7 +138,7 @@ function renderQuestion() {
 }
 
 function renderOptions(correctWord, field) {
-  const alternatives = shuffle(allWords().filter(word => word.id !== correctWord.id)).slice(0, 3);
+  const alternatives = shuffle(allWords().filter(word => word.id !== correctWord.id && word[field] !== correctWord[field])).filter((word, index, words) => words.findIndex(item => item[field] === word[field]) === index).slice(0, 3);
   const options = shuffle([correctWord, ...alternatives]);
   $("#quiz-options").innerHTML = options.map(word => `<button class="option" type="button" data-id="${word.id}">${escapeHtml(word[field])}</button>`).join("");
 }
@@ -232,6 +239,15 @@ function renderStats() {
   });
   const max = Math.max(1, ...days.map(day => day.value));
   $("#week-chart").innerHTML = days.map(day => `<div class="day-bar"><strong>${day.value || ""}</strong><i style="height:${Math.max(3, day.value / max * 110)}px"></i><span>${day.label}</span></div>`).join("");
+  const difficultWords = allWords().map(word => ({ word, errors: progressFor(word.id).incorrect })).filter(item => item.errors > 0).sort((first, second) => second.errors - first.errors || first.word.id.localeCompare(second.word.id)).slice(0, 5);
+  $("#difficult-words").innerHTML = difficultWords.length ? difficultWords.map(({ word, errors }) => `<div class="difficult-word"><div><strong>${escapeHtml(word.japanese)}</strong><span>${escapeHtml(word.russian)}</span></div><span class="error-count">${errors} ${errorForm(errors)}</span></div>`).join("") : `<p class="muted">Пока нет ошибок — так держать!</p>`;
+}
+
+function errorForm(count) {
+  if (count % 100 >= 11 && count % 100 <= 14) return "ошибок";
+  if (count % 10 === 1) return "ошибка";
+  if (count % 10 >= 2 && count % 10 <= 4) return "ошибки";
+  return "ошибок";
 }
 
 function addWord(form) {
@@ -249,6 +265,7 @@ function deleteCustomWord(id) {
   const word = data.customWords.find(item => item.id === id);
   if (!word || !confirm(`Удалить слово «${word.japanese}»?`)) return;
   data.customWords = data.customWords.filter(item => item.id !== id);
+  data.favorites = data.favorites.filter(favoriteId => favoriteId !== id);
   delete data.progress[id];
   saveData();
   renderWords();
@@ -269,8 +286,9 @@ async function importData(file) {
   try {
     const imported = JSON.parse(await file.text());
     if (imported.version !== 1 || !Array.isArray(imported.customWords) || typeof imported.progress !== "object") throw new Error();
-    data = { ...defaultData(), ...imported, stats: { ...defaultData().stats, ...imported.stats } };
+    data = { ...defaultData(), ...imported, favorites: Array.isArray(imported.favorites) ? imported.favorites : [], stats: { ...defaultData().stats, ...imported.stats } };
     saveData();
+    applyTheme();
     renderHome();
     renderWords();
     renderStats();
@@ -281,7 +299,18 @@ async function importData(file) {
 }
 
 function normalizeKana(value) {
-  return value.trim().replace(/[\s。、・]/g, "");
+  return toHiragana(value.trim().replace(/[\s。、・]/g, ""));
+}
+
+function toHiragana(value) {
+  return value.replace(/[ァ-ヶ]/g, character => String.fromCharCode(character.charCodeAt(0) - 96));
+}
+
+function applyTheme() {
+  const theme = data.theme === "pink" ? "pink" : "classic";
+  document.documentElement.dataset.theme = theme;
+  document.querySelector('meta[name="theme-color"]').content = theme === "pink" ? "#d18b9e" : "#d95d39";
+  $$("[data-theme]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.theme === theme)));
 }
 
 function escapeHtml(value) {
@@ -313,7 +342,14 @@ $("#close-quiz").addEventListener("click", closeQuiz);
 $("#finish-session").addEventListener("click", () => { closeQuiz(); showView("home"); });
 $("#repeat-mistakes").addEventListener("click", () => startSession(currentSession.mode, currentSession.mistakes));
 $("#word-search").addEventListener("input", renderWords);
+$("#word-filter").addEventListener("change", renderWords);
 $("#word-list").addEventListener("click", event => {
+  const favoriteButton = event.target.closest("[data-favorite-word]");
+  if (favoriteButton) {
+    const id = favoriteButton.dataset.favoriteWord;
+    data.favorites = data.favorites.includes(id) ? data.favorites.filter(favoriteId => favoriteId !== id) : [...data.favorites, id];
+    saveData(); renderWords(); return;
+  }
   const button = event.target.closest("[data-delete-word]");
   if (button) deleteCustomWord(button.dataset.deleteWord);
 });
@@ -322,9 +358,11 @@ $("#close-dialog").addEventListener("click", () => $("#add-word-dialog").close()
 $("#add-word-form").addEventListener("submit", event => { event.preventDefault(); addWord(event.currentTarget); });
 $("#export-data").addEventListener("click", exportData);
 $("#import-data").addEventListener("change", event => { if (event.target.files[0]) importData(event.target.files[0]); event.target.value = ""; });
+$$('[data-theme]').forEach(button => button.addEventListener("click", () => { data.theme = button.dataset.theme; saveData(); applyTheme(); }));
 $("#reset-progress").addEventListener("click", () => {
   if (!confirm("Сбросить весь прогресс? Добавленные слова тоже будут удалены.")) return;
-  data = defaultData(); saveData(); renderHome(); renderWords(); renderStats(); showToast("Прогресс сброшен");
+  const theme = data.theme;
+  data = { ...defaultData(), theme }; saveData(); applyTheme(); renderHome(); renderWords(); renderStats(); showToast("Прогресс сброшен");
 });
 
 window.addEventListener("beforeinstallprompt", event => {
@@ -335,5 +373,6 @@ $("#install-button").addEventListener("click", async () => {
   deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; $("#install-button").classList.add("hidden");
 });
 
-if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=4"));
+if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=5"));
+applyTheme();
 renderHome();

@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=4">
   <title>ことば — японские слова</title>
 </head>
 <body>
@@ -61,6 +61,9 @@
           <button class="mode-card" data-start-mode="ru-jp" type="button"><span>Я → 日</span><strong>Русский → японский</strong><small>Выберите слово</small></button>
           <button class="mode-card" data-start-mode="typing" type="button"><span>⌨︎</span><strong>Ввод ответа</strong><small>Напишите слово хираганой</small></button>
         </div>
+        <label class="field">Какие слова тренировать
+          <select id="session-source"><option value="all">Все слова</option><option value="favorites">★ Только избранное</option></select>
+        </label>
         <label class="field">Размер занятия
           <select id="session-size"><option value="10">10 слов</option><option value="20" selected>20 слов</option><option value="30">30 слов</option><option value="999">Все доступные</option></select>
         </label>
@@ -92,7 +95,10 @@
     </section>
 
     <section id="words-view" class="view">
-      <div class="section-head"><div><p class="eyebrow">Словарь</p><h2><span id="word-count">78</span> слов</h2></div><button id="show-add-word" class="button secondary" type="button">+ Добавить</button></div>
+      <div class="section-head"><div><p class="eyebrow">Словарь</p><h2><span id="word-count">97</span> слов</h2><p class="muted">★ <span id="favorites-count">0</span> в избранном</p></div><button id="show-add-word" class="button secondary" type="button">+ Добавить</button></div>
+      <label class="field">Показать
+        <select id="word-filter"><option value="all">Все слова</option><option value="favorites">★ Избранное</option></select>
+      </label>
       <label class="search"><span>⌕</span><input id="word-search" type="search" placeholder="Найти слово или перевод"></label>
       <div id="word-list" class="word-list"></div>
     </section>
@@ -105,11 +111,13 @@
         <article class="metric"><span>Ошибок</span><strong id="mistake-count">0</strong></article>
       </div>
       <div class="card chart-card"><div class="section-head"><strong>Последние 7 дней</strong><span class="muted">ответы</span></div><div id="week-chart" class="week-chart"></div></div>
+      <div class="card chart-card"><strong>Самые проблемные слова</strong><div id="difficult-words" class="difficult-words"></div></div>
       <div class="card"><div class="row"><span>Средняя точность</span><strong id="stats-accuracy">—</strong></div><div class="row"><span>Лучшая серия</span><strong id="best-streak">0 дней</strong></div><div class="row"><span>Слов на повторении</span><strong id="reviewing-count">0</strong></div></div>
     </section>
 
     <section id="settings-view" class="view">
       <p class="eyebrow">Данные</p><h2>Настройки</h2>
+      <div class="card stack"><strong>Тема оформления</strong><div class="theme-options" role="group" aria-label="Тема оформления"><button class="theme-choice classic-choice" data-theme="classic" type="button" aria-pressed="true">Оригинальная</button><button class="theme-choice pink-choice" data-theme="pink" type="button" aria-pressed="false">Нежно-розовая</button></div></div>
       <div class="card stack">
         <button id="export-data" class="button secondary wide" type="button">Экспортировать прогресс</button>
         <label class="button secondary wide file-button">Импортировать прогресс<input id="import-data" type="file" accept="application/json"></label>
@@ -131,6 +139,6 @@
   </dialog>
 
   <div id="toast" class="toast hidden" role="status"></div>
-  <script src="app.js?v=3" defer></script>
+  <script src="app.js?v=4" defer></script>
 </body>
 </html>
